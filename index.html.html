@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Третье измерение | 3D Графика и Рендеринг</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --accent: #00b4d8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--light);
+            min-height: 100vh;
+        }
+        
+        header {
+            padding: 2rem;
+            text-align: center;
+            background-color: rgba(26, 26, 46, 0.8);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .author {
+            font-style: italic;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        nav a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        nav a:hover {
+            background-color: var(--accent);
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        section {
+            background-color: rgba(26, 26, 46, 0.7);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        h2 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .card h3 {
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+        
+        /* 3D Viewer Styles */
+        .model-viewer {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .model-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            nav {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: center;
+            }
+            
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            .model-viewer {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Третье измерение</h1>
+        <p class="author">Автор: Шевченко Захар</p>
+    </header>
+    
+    <nav>
+        <a href="#about">О проекте</a>
+        <a href="#3d-objects">3D Объекты</a>
+        <a href="#rendering">Рендеринг</a>
+    </nav>
+    
+    <div class="container">
+        <section id="about">
+            <h2>О проекте</h2>
+            <p>Добро пожаловать на сайт "Третье измерение" - ваш источник вдохновения в мире 3D графики и визуализации. Здесь вы найдете коллекцию уникальных 3D объектов, информацию о технологиях рендеринга и многое другое.</p>
+            <p>Наш проект создан для всех, кто увлекается компьютерной графикой, от начинающих художников до профессиональных дизайнеров.</p>
+        </section>
+        
+        <section id="3d-objects">
+            <h2>3D Объекты</h2>
+            <p>Интерактивные 3D-модели, которые можно вращать и рассматривать:</p>
+            
+            <div class="model-viewer" id="model1"></div>
+            <div class="model-info">
+                <h3>Сфера с текстурой</h3>
+                <p>Простая 3D-сфера с металлической текстурой. Попробуйте покрутить её мышкой!</p>
+            </div>
+            
+            <div class="model-viewer" id="model2"></div>
+            <div class="model-info">
+                <h3>Геометрическая фигура</h3>
+                <p>Тороидальная форма с градиентным материалом.</p>
+            </div>
+            
+            <h3 style="margin-top: 2rem; color: var(--accent);">Другие модели:</h3>
+            <div class="gallery">
+                <div class="card">
+                    <img src="https://via.placeholder.com/300x200/6a11cb/ffffff?text=Архитектура" alt="Архитектурная модель">
+                    <div class="card-content">
+                        <h3>Архитектурная визуализация</h3>
+                        <p>Детализированные модели зданий и интерьеров.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <img src="https://via.placeholder.com/300x200/2575fc/ffffff?text=Персонаж" alt="3D Персонаж">
+                    <div class="card-content">
+                        <h3>Игровые персонажи</h3>
+                        <p>Высокополигональные модели персонажей.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="rendering">
+            <h2>Рендеринг</h2>
+            <p>Рендеринг - процесс создания 2D изображения из 3D модели. Это финальный и один из самых важных этапов в работе с 3D графикой.</p>
+            
+            <h3 style="margin-top: 1.5rem; color: var(--accent);">Популярные движки рендеринга:</h3>
+            <ul style="margin-top: 1rem; margin-left: 2rem; line-height: 1.6;">
+                <li>Arnold - используется в киноиндустрии (Autodesk)</li>
+                <li>V-Ray - универсальный рендер для архитектуры и дизайна</li>
+                <li>Redshift - GPU-ускоренный рендер для быстрых результатов</li>
+            </ul>
+        </section>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 Третье измерение | Шевченко Захар</p>
+    </footer>
+
+    <script>
+        // Инициализация сцены, камеры и рендерера
+        function init3DViewer(containerId) {
+            const container = document.getElementById(containerId);
+            
+            // Создаем сцену
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x111122);
+            
+            // Камера
+            const camera = new THREE.PerspectiveCamera(
+                75, 
+                container.clientWidth / container.clientHeight, 
+                0.1, 
+                1000
+            );
+            camera.position.z = 5;
+            
+            // Рендерер
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Орбитальные контролы (для вращения)
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // Освещение
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // Создаем 3D-объект (разные для разных контейнеров)
+            let object;
+            
+            if (containerId === "model1") {
+                // Сфера с металлической текстурой
+                const geometry = new THREE.SphereGeometry(1.5, 32, 32);
+                const material = new THREE.MeshStandardMaterial({ 
+                    color: 0x00b4d8,
+                    metalness: 0.7,
+                    roughness: 0.2
+                });
+                object = new THREE.Mesh(geometry, material);
+            } else if (containerId === "model2") {
+                // Тор (бублик)
+                const geometry = new THREE.TorusGeometry(1, 0.4, 16, 100);
+                const material = new THREE.MeshStandardMaterial({ 
+                    color: 0xff6b6b,
+                    emissive: 0x444444
+                });
+                object = new THREE.Mesh(geometry, material);
+            }
+            
+            scene.add(object);
+            
+            // Анимация
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                
+                // Вращаем объект
+                if (object) {
+                    object.rotation.x += 0.005;
+                    object.rotation.y += 0.005;
+                }
+                
+                renderer.render(scene, camera);
+            }
+            
+            // Обработка изменения размера окна
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+            
+            animate();
+        }
+        
+        // Инициализация всех 3D-контейнеров
+        document.addEventListener('DOMContentLoaded', () => {
+            init3DViewer("model1");
+            init3DViewer("model2");
+        });
+    </script>
+</body>
+</html>
